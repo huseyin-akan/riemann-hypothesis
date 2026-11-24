@@ -85,6 +85,31 @@ class QuickChecks(unittest.TestCase):
  def test_live_low_memory_host_deferred(self):
   host={'memory_gib':64};report={'ready':True,'systemd_user':True,'cgroup_v2':True,'physical_ram_gib':64}
   self.assertFalse(q.doctor_safe(report,host));report['physical_ram_gib']=125.5;self.assertTrue(q.doctor_safe(report,host))
+ def test_failed_runner_doctor_reports_infrastructure_reason_before_build(self):
+  from contextlib import redirect_stderr
+  from io import StringIO
+  from types import SimpleNamespace
+  from unittest.mock import patch
+  host = q.runner('gcp-small')
+  candidate_head = 'a' * 40
+  reason = 'free_disk_gib is 96.7, need at least 100 for the build state directory'
+  args = SimpleNamespace(candidate=self.root, state=self.root, output=self.root/'output',
+                         request=self.root/'request.json', runner=host['id'])
+  q.write(args.request, {'quick_runner':host, 'expected':{'candidate_head':candidate_head}})
+  doctor = SimpleNamespace(returncode=1, stdout=json.dumps({'ready':False, 'failed':[reason]}))
+  log = StringIO()
+  with patch.dict(q.os.environ, RUNNER_NAME=host['runner_name']), patch.object(q, 'resource_limits'), \
+       patch.object(q, 'plan', return_value={'targets':['A'], 'candidate_head':candidate_head}), \
+       patch.object(q.subprocess, 'run', return_value=doctor), patch.object(q.prep, 'prepare') as prepare, \
+       redirect_stderr(log):
+   self.assertNotEqual(q.run(args), 0)
+  self.assertIn(reason, log.getvalue())
+  outcome = json.loads((args.output/'result.json').read_text())
+  self.assertEqual(outcome['status'], 'infrastructure_or_outer_budget_failure')
+  self.assertEqual(outcome['candidate_head'], candidate_head)
+  self.assertIn(reason, outcome['reason'])
+  self.assertFalse(outcome['full_build'])
+  prepare.assert_not_called()
  def test_runner_registry_excludes_big(self):
   with self.assertRaises(ValueError):q.runner('james-192')
   self.assertEqual(q.runner('gcp-small')['runner_id'],298713)

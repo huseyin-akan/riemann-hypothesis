@@ -141,6 +141,13 @@ def run(args):
     doctor = subprocess.run([sys.executable,str(HERE/'ci-runner.py'),'doctor','--work-directory',str(state),'--minimum-disk-gib','100'],capture_output=True,text=True)
     (output/'doctor.json').write_text(doctor.stdout)
     report=json.loads(doctor.stdout)
+    if doctor.returncode and report.get('failed'):
+        reason = '; '.join(report['failed'])
+        write(output/'result.json', {'status':'infrastructure_or_outer_budget_failure',
+              'full_build':False, 'scope':'changed-modules-only',
+              'candidate_head':selected['candidate_head'], 'reason':reason})
+        print(f'Runner preflight failed before compilation: {reason}', file=sys.stderr)
+        return 1
     if doctor.returncode or not doctor_safe(report,host): raise ValueError('runner doctor failed; candidate was not executed')
     paths_file=output/'paths.json'
     prep.prepare(SimpleNamespace(trusted=HERE.parent,candidate=candidate,state=state,request=args.request,output=paths_file,quick_plan=output/'plan.json'))

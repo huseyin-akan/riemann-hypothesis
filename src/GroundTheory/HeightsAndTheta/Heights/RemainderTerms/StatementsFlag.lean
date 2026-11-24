@@ -1,6 +1,5 @@
 module
 
-import Mathlib
 public import Lean.Meta.Basic
 public import GroundTheory.HeightsAndTheta.Heights.RemainderTerms.Statements
 public import GroundTheory.HeightsAndTheta.Heights.RemainderTerms.PowerSums

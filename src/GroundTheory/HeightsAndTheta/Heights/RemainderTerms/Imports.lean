@@ -1,6 +1,5 @@
 module
 
-import Mathlib
 public import GroundTheory.HeightsAndTheta.Heights.RemainderTerms.StatementsTop
 public import GroundTheory.HeightsAndTheta.Heights.RemainderTerms.StatementsComb
 public import GroundTheory.HeightsAndTheta.Heights.RemainderTerms.StatementsFlag

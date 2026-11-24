@@ -15,7 +15,6 @@ public import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsBasePo
 public import ReciprocityTheory.ReductiveGroups.ArithmeticGeometry.SemiabelianSchemes.AbelianSchemeQuotients.IsAbelianScheme
 public import Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsAbelianEndomorphismSpreadSpecialise
 public import Development.AbelianVarietyTheory.Proofs.DivisorProofs.SpreadEndomorphismTorsionSectionEqSpecialisation
-import Mathlib
 import Mathlib.CategoryTheory.Monoidal.Opposite.Mon
 
 @[expose] public section

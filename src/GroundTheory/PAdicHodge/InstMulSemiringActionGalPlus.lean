@@ -1,6 +1,5 @@
 module
 
-import Mathlib
 public import GroundTheory.PAdicHodge.ACrisPhi
 public import GroundTheory.PAdicHodge.ACrisGalois
 
