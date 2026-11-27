@@ -1,8 +1,6 @@
 module
 
 import TauCeti.NumberTheory.DirichletCharacter.LFunction.Bounds
-import TauCeti.NumberTheory.LSeries.RiemannZeta.Basic
-import TauCeti.NumberTheory.LSeries.RiemannZeta.Bounds
 import Mathlib.Algebra.Order.Star.Real
 import Mathlib.Analysis.Complex.Hadamard
 import Mathlib.Analysis.Complex.HalfPlane
@@ -40,26 +38,6 @@ open scoped Classical
 namespace New
 
 variable {N : ℕ} [NeZero N] (χ : DirichletCharacter ℂ N) {s : ℂ} {l : ℝ}
-
-omit [NeZero N] in
-/-- If `re s ≥ 1 + 1 / A` with `A > 0`, then `|L(s, χ)| ≤ 1 + A`, since the Dirichlet series of
-`χ` is dominated by `ζ(re s)`. -/
-lemma norm_LSeries_char_le {A : ℝ} (hA : 0 < A) (hs : 1 + 1 / A ≤ s.re) :
-    ‖LSeries (fun n : ℕ ↦ χ n) s‖ ≤ 1 + A := by
-  have hs_one : 1 < s.re := by linarith [one_div_pos.2 hA]
-  have h_sum : HasSum (fun n : ℕ ↦ 1 / (n : ℝ) ^ s.re) (riemannZeta s.re).re := by
-    simpa only [Real.rpow_neg (Nat.cast_nonneg _), one_div] using
-      TauCeti.hasSum_nat_rpow_neg_riemannZeta_re hs_one
-  have term_le (n : ℕ) : ‖LSeries.term (χ ·) s n‖ ≤ 1 / (n : ℝ) ^ s.re := by
-    rw [LSeries.norm_term_eq]
-    split_ifs
-    · positivity
-    · exact div_le_div_of_nonneg_right (χ.norm_le_one _) (by positivity)
-  calc
-    _ ≤ (riemannZeta s.re).re := tsum_of_norm_bounded h_sum term_le
-    _ ≤ 1 + 1 / (s.re - 1) :=
-      (TauCeti.riemannZeta_re_lt_one_add_one_div_sub_one (zero_lt_one.trans hs_one) hs_one.ne').le
-    _ ≤ 1 + A := by linarith [(one_div_le hA (sub_pos.2 hs_one)).1 (by linarith)]
 
 /-- `𝖿_χ(s)` is `L(s, χ)`, times `(s - 1) / s` if `χ` is principal. The entire function `entireL χ`
 has the factor `s - 1` in that case; dividing by `s` keeps the size of `L(s, χ)` for large `|s|`. -/
@@ -219,7 +197,7 @@ lemma norm_regularL_le_sq (hl : 10 ^ 10 ≤ l) (hN : N ≤ rexp l) (h_re : 1 - 1
       _ = ‖LSeries (χ ·) z‖ := div_mul_cancel₀ _ hz_norm.ne'
       _ ≤ 1 + l := by
         have h_re_right : 1 + 1 / l ≤ z.re := by linarith
-        exact norm_LSeries_char_le χ (by linarith) h_re_right
+        exact χ.norm_LSeries_le_one_add (by linarith) h_re_right
   have g_diff : DiffContOnCl ℂ g (verticalStrip a (a + 1 / 3)) := by
     refine DifferentiableOn.diffContOnCl fun z hz ↦ ?_
     rw [verticalStrip, closure_preimage_re, closure_Ioo (by linarith)] at hz

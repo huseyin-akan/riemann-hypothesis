@@ -1,5 +1,6 @@
 module
 
+import TauCeti.NumberTheory.DirichletCharacter.LFunction.Bounds
 import Mathlib.Algebra.Order.Star.Int
 import Mathlib.Algebra.Order.Star.Real
 import Mathlib.NumberTheory.LSeries.Nonvanishing
@@ -74,7 +75,8 @@ lemma pow_three_le_mul_norm_regularL_pow (χ : DirichletCharacter ℂ N) {s : �
     simpa only [at_re, at_s, at_s₂, norm_mul, norm_pow] using
       χ.norm_LSeries_product_ge_one (by linarith : 0 < s.re - 1) s.im
   have trivial_char_le : ‖LSeries ((1 : DirichletCharacter ℂ N) ·) s.re‖ ≤ 2 / η := calc
-    _ ≤ 1 + 1 / η := norm_LSeries_char_le 1 (one_div_pos.2 hη) (by simpa using h_re)
+    _ ≤ 1 + 1 / η :=
+      DirichletCharacter.norm_LSeries_le_one_add 1 (one_div_pos.2 hη) (by simpa using h_re)
     _ ≤ 1 / η + 1 / η := by linarith [one_le_one_div hη hη_le]
     _ = 2 / η := by ring
   have char_le : ‖LSeries (χ ·) s‖ ≤ 2 * l * ‖regularL χ s‖ :=
